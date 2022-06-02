@@ -58,7 +58,7 @@ namespace Game_Multiplayer {
 			items.push_back(std::make_unique<RangeOption>("音效距离", "可以听见其他玩家的音效的最大距离", &MyData::sfxfalloff, 4, 32, 1));
 			items.push_back(std::make_unique<RangeOption>("音效音量", "其他玩家产生音效的音量", &MyData::playersVolume, 0, 100, 2));
 			items.push_back(std::make_unique<SwitchOption>("NPC 同步", "你和其他玩家看见的 NPC 的位置相同", &MyData::syncnpc));
-			items.push_back(std::make_unique<SwitchOption>("显示昵称", "可以看见玩家们的昵称", &MyData::rendernametags));
+			items.push_back(std::make_unique<SwitchOption>("显示昵称", "可以看见其它玩家们的昵称", &MyData::rendernametags));
 			items.push_back(std::make_unique<SwitchOption>("多彩名片", "将玩家的昵称染上其正在使用的系统颜色", &MyData::systemsync));
 			items.push_back(std::make_unique<ActionOption>("全局聊天", "是否开启全局聊天", &ToggleGlobalChatVisivility));
 			items.push_back(std::make_unique<ActionOption>("断线重连", "断开连接，清除玩家并重新连接", &Reconnect));
@@ -67,10 +67,19 @@ namespace Game_Multiplayer {
 			items.push_back(std::make_unique<RangeOption>("音效距離", "可以聽見其他玩家的音效的最大距離", &MyData::sfxfalloff, 4, 32, 1));
 			items.push_back(std::make_unique<RangeOption>("音效音量", "其他玩家產生音效的音量", &MyData::playersVolume, 0, 100, 2));
 			items.push_back(std::make_unique<SwitchOption>("NPC 同步", "你和其他玩家看見的 NPC 的位置相同", &MyData::syncnpc));
-			items.push_back(std::make_unique<SwitchOption>("顯示昵稱", "可以看見玩家們的昵稱", &MyData::rendernametags));
+			items.push_back(std::make_unique<SwitchOption>("顯示昵稱", "可以看見其它玩家們的昵稱", &MyData::rendernametags));
 			items.push_back(std::make_unique<SwitchOption>("多彩名片", "將玩家的昵稱染上其正在使用的系統顏色", &MyData::systemsync));
 			items.push_back(std::make_unique<ActionOption>("全局聊天", "是否開啟全局聊天", &ToggleGlobalChatVisivility));
 			items.push_back(std::make_unique<ActionOption>("斷線重連", "斷開連接，清除玩家並重新連接", &Reconnect));
+		} else if (Player::IsCP932()) {
+			items.push_back(std::make_unique<SwitchOption>("効果音同期", "他のプレイヤーの音が聞こえます", &MyData::sfxsync));
+			items.push_back(std::make_unique<RangeOption>("効果音距離", "他のプレイヤーの効果音が聞こえる最大距離", &MyData::sfxfalloff, 4, 32, 1));
+			items.push_back(std::make_unique<RangeOption>("効果音音量", "他のプレイヤーが発する効果音の音量", &MyData::playersVolume, 0, 100, 2));
+			items.push_back(std::make_unique<SwitchOption>("NPC 同期", "あなたと他のプレイヤーは同じ位置にNPCを見る", &MyData::syncnpc));
+			items.push_back(std::make_unique<SwitchOption>("ニックネームを表示", "他のプレイヤーのニックネームを見ることができます", &MyData::rendernametags));
+			items.push_back(std::make_unique<SwitchOption>("カラフルな名刺", "プレーヤーのニックネームを、使用しているシステムの色で色付けします", &MyData::systemsync));
+			items.push_back(std::make_unique<ActionOption>("グローバルチャット", "グローバルチャットを有効にするかどうか", &ToggleGlobalChatVisivility));
+			items.push_back(std::make_unique<ActionOption>("接続切断後に再接続する", "接続を解除し、プレーヤーをクリアしてから再接続する", &Reconnect));					
 		} else {
 			items.push_back(std::make_unique<SwitchOption>("SFX sync", "Lets you hear sound effects that other players produce", &MyData::sfxsync));
 			items.push_back(std::make_unique<RangeOption>("SFX falloff", "Maximum distance at which you can hear players", &MyData::sfxfalloff, 4, 32, 1));

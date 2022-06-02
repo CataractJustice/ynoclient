@@ -127,7 +127,7 @@ void Scene_Menu::CreateCommandWindow() {
 			options.push_back("Debug");
 			break;
 		case Multiplayer:
-			options.push_back(Player::IsCP936() ? "通信设置" : (Player::IsBig5() ? "通信設置" : "Multiplayer"));
+			options.push_back(Player::IsCP936() ? "通信设置" : (Player::IsBig5() ? "通信設置" : (Player::IsCP932() ? "通信設定" : "Multiplayer")));
 			break;
 		default:
 			options.push_back(ToString(lcf::Data::terms.menu_quit));
