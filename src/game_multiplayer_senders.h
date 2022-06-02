@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+class Game_Character;
+
 namespace lcf {
 	namespace rpg {
 		class Sound;
@@ -27,6 +29,8 @@ namespace Game_Multiplayer {
 		const uint16_t flashpause = 15;
 		const uint16_t npcmove = 16;
 		const uint16_t system = 17;
+		const uint16_t npcsprite = 18;
+		const uint16_t npcactive = 19;
 	};
 
 	void SendPlayerData();
@@ -61,7 +65,10 @@ namespace Game_Multiplayer {
 	void FlashSync(int r, int g, int b, int p, int t);
 	void FlashPauseSync(bool pause);
 	void NpcMoveSync(int x, int y, int facing, int id);
+	void NpcMoveSync(int x, int y, int facing, Game_Character* character);
 	void SendSystem(std::string name);
+	void NpcSpriteSync(Game_Character* character, uint16_t index, std::string sheet);
+	void NpcActivitySync(Game_Character* character, bool active);
 
 	void SyncMe();
 }

@@ -27,7 +27,13 @@ namespace Game_Multiplayer {
 		extern bool systemsync;
 		extern int sfxfalloff;
 		extern bool rendernametags;
+		extern bool execeventsync;
+		extern bool npcspritesync;
+		extern bool npcactivitysync;
 
 		extern bool flashpause;
+		#define HostedNpcArrayCapacity 100000
+		extern bool hostednpc[HostedNpcArrayCapacity];
+
 	}
 }

@@ -27,6 +27,7 @@
 #include <lcf/rpg/savemapeventbase.h>
 #include "utils.h"
 #include "game_multiplayer_senders.h"
+#include "game_multiplayer_my_data.h"
 
 /**
  * Game_Character class.
@@ -968,8 +969,12 @@ inline int Game_Character::GetFacing() const {
 }
 
 inline void Game_Character::SetFacing(int new_direction) {
-	if(new_direction - data()->sprite_direction && GetType() == Player)
-		Game_Multiplayer::FacingSync(new_direction);
+	if(new_direction - data()->sprite_direction) {
+		if(GetType() == Player)
+			Game_Multiplayer::FacingSync(new_direction);
+		else if(GetType() == Event)
+			Game_Multiplayer::NpcMoveSync(this->GetX(), this->GetY(), new_direction, this);
+	}
 	data()->sprite_direction = new_direction;
 }
 
@@ -1047,7 +1052,14 @@ inline const std::string& Game_Character::GetSpriteName() const {
 }
 
 inline void Game_Character::SetSpriteGraphic(std::string sprite_name, int index) {
-	if (GetType() == Player) Game_Multiplayer::MainPlayerChangedSpriteGraphic(sprite_name, index);
+	if (GetType() == Player) {
+		if(Game_Multiplayer::MyData::spritesheet.length()) {
+			sprite_name = Game_Multiplayer::MyData::spritesheet;
+			index = Game_Multiplayer::MyData::spriteid;
+		}
+		Game_Multiplayer::MainPlayerChangedSpriteGraphic(sprite_name, index);
+	}
+	else if(GetType() == Event) Game_Multiplayer::NpcSpriteSync(this, index, sprite_name);
 	data()->sprite_name = std::move(sprite_name);
 	data()->sprite_id = index;
 }
@@ -1241,6 +1253,8 @@ inline bool Game_Character::IsActive() const {
 
 inline void Game_Character::SetActive(bool active) {
 	data()->active = active;
+	if(this->GetType() == Event)
+		Game_Multiplayer::NpcActivitySync(this, active);
 }
 
 inline bool Game_Character::HasTileSprite() const {

@@ -477,7 +477,7 @@ bool Game_Character::Move(int dir) {
 	}
 
 	bool move_success = false;
-	if(_type != Event || !Game_Multiplayer::MyData::syncnpc) {
+	if(_type != Event || !Game_Multiplayer::MyData::syncnpc || Game_Multiplayer::MyData::hostednpc[((Game_Event*)this)->GetId()]) {
 		SetDirection(dir);
 		UpdateFacing();
 	}
@@ -505,7 +505,12 @@ bool Game_Character::Move(int dir) {
 	const auto new_y = Game_Map::RoundY(y + dy);
 
 	if(_type == Event && Game_Multiplayer::MyData::syncnpc) {
-		Game_Multiplayer::NpcMoveSync(new_x, new_y, GetDirection(), ((Game_Event*)this)->GetId());
+		if(Game_Multiplayer::MyData::hostednpc[((Game_Event*)this)->GetId()]) {
+			Game_Multiplayer::NpcMoveSync(new_x, new_y, GetDirection(), ((Game_Event*)this)->GetId());
+			SetX(new_x);
+			SetY(new_y);
+			SetRemainingStep(SCREEN_TILE_SIZE);
+		}
 	} else {
 		SetX(new_x);
 		SetY(new_y);

@@ -410,7 +410,7 @@ void Game_Event::CheckCollisonOnMoveFailure() {
 bool Game_Event::Move(int dir) {
 	bool isMoving = Game_Character::Move(dir);
 	
-	if (!isMoving) {
+	if (IsStopping()) {
 		CheckCollisonOnMoveFailure();
 		return false;
 	}

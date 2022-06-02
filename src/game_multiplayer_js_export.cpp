@@ -5,6 +5,7 @@
 #include "game_multiplayer_senders.h"
 #include "game_multiplayer_connection.h"
 #include "chat_multiplayer.h"
+#include "game_multiplayer_player_tracker.h"
 #include "game_player.h"
 #include "scene.h"
 #include "main_data.h"
@@ -75,5 +76,12 @@ extern "C" {
 
 	void SwitchNpcSync() {
 		Game_Multiplayer::MyData::syncnpc = !Game_Multiplayer::MyData::syncnpc;
+	}
+
+	void TrackCommand(const char* name) {
+		trackerRenderer->Track(name);
+	}
+	void UntrackCommand(const char* name) {
+		trackerRenderer->Untrack(name);
 	}
 }

@@ -54,6 +54,7 @@ namespace Game_Multiplayer {
 		int moveSpeed;
 		std::unique_ptr<Sprite_Character> sprite;
 		int flashpause;
+		std::string nickname;
 	};
 
 	extern std::map<std::string, MPPlayer> other_players;
@@ -65,4 +66,6 @@ namespace Game_Multiplayer {
 
 	void FlashAll(int r, int g, int b, int p, int t);
 	void TintAll();
+
+	
 }

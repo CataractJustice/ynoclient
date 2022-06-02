@@ -15,6 +15,19 @@
 
 namespace Game_Multiplayer {
 
+	void LoadSetting(std::string name, int* ptr) {
+		*ptr = EM_ASM_INT({
+			let settingName = "MultiplayerSettings[" + UTF8ToString($0) + "]";
+			return (window.localStorage.hasOwnProperty(settingName)) ? window.localStorage[settingName] : $1;
+		}, name.c_str(), *ptr);
+	}
+
+	void SaveSetting(std::string name, int value) {
+		EM_ASM({
+			window.localStorage["MultiplayerSettings[" + UTF8ToString($0) + "]"] = $1;
+		}, name.c_str(), value);
+	}
+
 	bool Reconnect(SettingsItem* item, Input::InputButton action) {
 		SetConnStatusWindowText("Disconnected");
 		ConnectionData::connected = false;
@@ -62,7 +75,9 @@ namespace Game_Multiplayer {
 			items.push_back(std::make_unique<SwitchOption>("SFX sync", "Lets you hear sound effects that other players produce", &MyData::sfxsync));
 			items.push_back(std::make_unique<RangeOption>("SFX falloff", "Maximum distance at which you can hear players", &MyData::sfxfalloff, 4, 32, 1));
 			items.push_back(std::make_unique<RangeOption>("Players SFX volume", "Volume of the sound effects that other players produce", &MyData::playersVolume, 0, 100, 2));
-			items.push_back(std::make_unique<SwitchOption>("NPC synchronisation", "Lets you and other players see NPC at same positions", &MyData::syncnpc));
+			items.push_back(std::make_unique<SwitchOption>("Event movement synchronisation", "Lets you and other players see NPCs at same positions", &MyData::syncnpc));
+			items.push_back(std::make_unique<SwitchOption>("Event sprite synchronisation", "Lets you and other players see NPCs with the same sprites", &MyData::npcspritesync));
+			items.push_back(std::make_unique<SwitchOption>("Event activity synchronisation", "Lets you and other players see same active NPCs", &MyData::npcactivitysync));
 			items.push_back(std::make_unique<SwitchOption>("Nametags", "Lets you see usernames of the players in game", &MyData::rendernametags));
 			items.push_back(std::make_unique<SwitchOption>("Nametags system sync", "Render nametags with system colors that player is using", &MyData::systemsync));
 			items.push_back(std::make_unique<ActionOption>("Global chat", "Toggle global chat visibility", &ToggleGlobalChatVisivility));
@@ -148,9 +163,11 @@ namespace Game_Multiplayer {
 		this->text_right = *(this->switch_ref) ? "[ON]" : "[OFF]";
 		this->color_right = *(this->switch_ref) ? Font::SystemColor::ColorDefault : Font::SystemColor::ColorDisabled;
 		Main_Data::game_system->SePlay(Main_Data::game_system->GetSystemSE(Main_Data::game_system->SFX_Decision));
+		SaveSetting(name, *switch_ref);
 	}
 
 	SwitchOption::SwitchOption(const std::string& name, const std::string& help, bool* switch_ref) {
+		LoadSetting(name, (int*)switch_ref);
 		this->name = name;
 		this->help = help;
 		this->switch_ref = switch_ref;
@@ -178,8 +195,10 @@ namespace Game_Multiplayer {
 		if(*(this->range) < this->min) *(this->range) = this->min;
 
 		this->text_right = std::to_string(*range);
+		SaveSetting(name, *range);
 	}
 	RangeOption::RangeOption(const std::string& name, const std::string& help, int* range, int min, int max, int step) {
+		LoadSetting(name, range);
 		this->name = name;
 		this->help = help;
 		this->range = range;

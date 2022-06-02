@@ -170,21 +170,18 @@ void FlashPauseSync(bool pause) {
 	}
 }
 
+void NpcMoveSync(int x, int y, int facing, Game_Character* character) {
+	NpcMoveSync(x, y, facing, ((Game_Event*)character)->GetId());
+}
+
 void NpcMoveSync(int x, int y, int facing, int id) {
-	if(other_players.size()) {
-		//to-do:
-		//actually distribute npcs between players
-		if(rand() % (other_players.size() + 1) == 0) {
-			uint16_t m[] = {PacketTypes::npcmove, (uint16_t)x, (uint16_t)y, (uint16_t)facing, (uint16_t)id};
-			TrySend(m, sizeof(uint16_t) * 5);
-		}
+	if(MyData::hostednpc[id]) {
+		uint16_t m[] = {PacketTypes::npcmove, (uint16_t)x, (uint16_t)y, (uint16_t)facing, (uint16_t)id};
+		TrySend(m, sizeof(uint16_t) * 5);
 	} else {
-		Game_Event* ev = Game_Map::GetEvent(id);
-		ev->SetX(x);
-		ev->SetY(y);
-		ev->SetDirection(facing);
-		ev->UpdateFacing();
-		ev->SetRemainingStep(SCREEN_TILE_SIZE);
+		//try to becomne a host for an npc just in case if somebody has turned off their npc sync
+		if((rand() % 16) == 0)
+			MyData::hostednpc[id] = true;
 	}
 }
 
@@ -193,6 +190,18 @@ void SendSystem(std::string name) {
 	memcpy(sendBuffer + sizeof(uint16_t), name.c_str(), name.length());
 
 	TrySend(sendBuffer, sizeof(uint16_t) + name.length());
+}
+
+void NpcSpriteSync(Game_Character* character, uint16_t index, std::string sheet) {
+	uint16_t m[] = {PacketTypes::npcsprite, (uint16_t)(((Game_Event*)character)->GetId()), index};
+	memcpy(sendBuffer + sizeof(uint16_t) * 3, sheet.c_str(), sheet.length());
+
+	TrySend(sendBuffer, sizeof(uint16_t) * 3 + sheet.length());
+}
+
+void NpcActivitySync(Game_Character* character, bool active) {
+	uint16_t m[] = {PacketTypes::npcactive, (uint16_t)(((Game_Event*)character)->GetId()), (uint16_t)active};
+	TrySend(m, sizeof(uint16_t) * 3);
 }
 
 void SyncMe() {

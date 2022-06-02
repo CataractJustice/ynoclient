@@ -6,6 +6,7 @@
 #include "game_multiplayer_nametags.h"
 #include "game_multiplayer_other_player.h"
 #include "game_multiplayer_my_data.h"
+#include "game_multiplayer_player_tracker.h"
 #include "game_map.h"
 #include "drawable_mgr.h"
 #include "player.h"
@@ -68,6 +69,12 @@ void ConnectToGame() {
 
 //changes the room that client is connected to
 void ConnectToRoom(int map_id) {
+	//we want to be a host for every npc in the room untill we receive an npc move packet from another player
+	//that would indicate that there's already another host for a npc
+	for(int i = 0; i < HostedNpcArrayCapacity; i++) {
+		MyData::hostednpc[i] = true;
+	}
+
 	ConnectionData::roomFirstUpdate = true;
 	ConnectionData::room_id = map_id;
 	ClearPlayers();
@@ -93,6 +100,10 @@ void ConnectToRoom(int map_id) {
 	if(nameTagRenderer == nullptr) {
 		nameTagRenderer = std::make_unique<DrawableNameTags>();
 	}
+	if(trackerRenderer == nullptr) {
+		trackerRenderer = std::make_unique<PlayerTracker>();
+	}
+	trackerRenderer->ResetLastPositions();
 }
 
 void SetConnStatusWindowText(std::string s) {

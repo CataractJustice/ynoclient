@@ -15,13 +15,15 @@ std::set<int> MyData::switchlogblacklist = std::set<int>(); //set of switch ids 
 std::string MyData::spritesheet = "";
 int MyData::spriteid = 0;
 
-//adding delay before setting weather since i dont fucking understand when it sets weather on entering another room
 uint8_t MyData::weatherSetDelay = 25;
 uint8_t MyData::weatherT = 0;
 int MyData::nextWeatherType = -1;
 int MyData::nextWeatherStrength = -1;
 
 bool MyData::syncnpc = false;
+bool MyData::npcspritesync = false;
+bool MyData::npcactivitysync = false;
+bool MyData::execeventsync = true;
 bool MyData::sfxsync = true;
 bool MyData::systemsync = true;
 int MyData::sfxfalloff = 16;
@@ -29,5 +31,7 @@ int MyData::sfxfalloff = 16;
 bool MyData::rendernametags = true;
 
 bool MyData::flashpause = false;
+
+bool MyData::hostednpc[HostedNpcArrayCapacity];
 
 }

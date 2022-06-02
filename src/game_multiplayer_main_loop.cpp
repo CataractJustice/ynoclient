@@ -32,8 +32,10 @@
 
 namespace Game_Multiplayer {
 
+std::list<std::pair<int, std::pair<int, int>>> npcmoves;
+
 //this assumes that the player is stopped
-void MovePlayerToPos(std::shared_ptr<Game_PlayerOther> &player, int x, int y) {
+void MoveChatacterToPos(Game_Character* player, int x, int y) {
 	if (!player->IsStopping()) {
 		Output::Debug("MovePlayerToPos unexpected error: the player is busy being animated");
 	}
@@ -75,7 +77,7 @@ void Update() {
 		if (!q.empty() && p.second.ch->IsStopping()) {
 			auto posX = q.front().first;
 			auto posY = q.front().second;
-			MovePlayerToPos(p.second.ch, posX, posY);
+			MoveChatacterToPos(p.second.ch.get(), posX, posY);
 			nameTagRenderer->moveNameTag(p.first, posX, posY);
 			if(q.size() > 8) {
 				p.second.ch->SetMoveSpeed(6);
@@ -87,6 +89,16 @@ void Update() {
 			q.pop();
 		}
 		p.second.ch->SetProcessed(false);
+
+		for(auto npc : npcmoves) {
+			Game_Character* character = Game_Map::GetEvent(npc.first);
+			if(character) {
+				if(character->IsStopping()) {
+					MoveChatacterToPos(character, npc.second.first, npc.second.second);
+					npcmoves.remove(npc);
+				}
+			}
+		}
 
 		Color ch_prev_flash_c = p.second.ch->GetFlashColor();
 		int ch_prev_flash_p = p.second.ch->GetFlashLevel();
@@ -119,7 +131,7 @@ void Update() {
 		SendMainPlayerSprite(player->GetSpriteName(), player->GetSpriteIndex());
 		SendMainPlayerName();
 		SendMainPlayerMoveSpeed((int)(player->GetMoveSpeed()));
-		
+
 		ConnectionData::roomFirstUpdate = false;
 	}
 }

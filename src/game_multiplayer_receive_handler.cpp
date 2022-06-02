@@ -6,6 +6,7 @@
 #include "game_multiplayer_other_player.h"
 #include "game_multiplayer_nametags.h"
 #include "game_multiplayer_my_data.h"
+#include "game_multiplayer_main_loop.h"
 #include <string.h>
 #include <map>
 #include <memory>
@@ -57,6 +58,10 @@ void HandleDisconnect(const nx_json* json) {
 	if(uid->type == nx_json_type::NX_JSON_STRING) {
 		ErasePlayer(uid->text_value);
 	}
+
+	for(int i = 0; i < HostedNpcArrayCapacity; i++) {
+		MyData::hostednpc[i] = true;
+	}
 }
 
 void ResolveObjectSyncPacket(const nx_json* json) {
@@ -79,6 +84,8 @@ void ResolveObjectSyncPacket(const nx_json* json) {
 		const nx_json* flashpause = nx_json_get(json, "flashpause");
 		const nx_json* npcmove = nx_json_get(json, "npcmove");
 		const nx_json* system = nx_json_get(json, "system");
+		const nx_json* npcsprite = nx_json_get(json, "npcsprite");
+		const nx_json* npcactive = nx_json_get(json, "npcactive");
 
 		if(uid->type == nx_json_type::NX_JSON_STRING) {
 	
@@ -133,6 +140,7 @@ void ResolveObjectSyncPacket(const nx_json* json) {
 
 				if(name->type == nx_json_type::NX_JSON_STRING) {
 					nameTagRenderer->setTagName(uid_string, name->text_value);
+					mpplayer.nickname = name->text_value;
 				}
 
 				if(weather->type == nx_json_type::NX_JSON_OBJECT) {
@@ -208,17 +216,40 @@ void ResolveObjectSyncPacket(const nx_json* json) {
 					nameTagRenderer->setTagSystem(uid_string, system->text_value);
 				}
 			}
-			if(MyData::syncnpc) {
+
 			if(npcmove->type == nx_json_type::NX_JSON_OBJECT) {
-				Game_Event* character = Game_Map::GetEvent(nx_json_get(npcmove, "id")->num.u_value);
+				MyData::hostednpc[nx_json_get(npcmove, "id")->num.u_value] = false;
+				if(MyData::syncnpc) {
+					Game_Event* character = Game_Map::GetEvent(nx_json_get(npcmove, "id")->num.u_value);
 					if(character) {
-						if(character->GetX() != nx_json_get(npcmove, "x")->num.u_value || character->GetY() != nx_json_get(npcmove, "y")->num.u_value || character->GetDirection() != nx_json_get(npcmove, "facing")->num.u_value) {
+						if(character->GetX() != nx_json_get(npcmove, "x")->num.u_value || character->GetY() != nx_json_get(npcmove, "y")->num.u_value) {
 							character->SetX(nx_json_get(npcmove, "x")->num.u_value);
 							character->SetY(nx_json_get(npcmove, "y")->num.u_value);
-							character->SetDirection(nx_json_get(npcmove, "facing")->num.u_value);
-							character->UpdateFacing();
 							character->SetRemainingStep(SCREEN_TILE_SIZE);
 						}
+						if(character->GetDirection() != nx_json_get(npcmove, "facing")->num.u_value) {
+							character->SetDirection(nx_json_get(npcmove, "facing")->num.u_value);
+							character->UpdateFacing();
+						}
+					}
+				}
+			}
+
+			if(MyData::npcspritesync) {
+				if(npcsprite->type == nx_json_type::NX_JSON_OBJECT) {
+					Game_Event* character = Game_Map::GetEvent(nx_json_get(npcsprite, "id")->num.u_value);
+					if(character) {
+						character->data()->sprite_name = nx_json_get(npcsprite, "sheet")->text_value;
+						character->data()->sprite_id = nx_json_get(npcsprite, "index")->num.u_value;
+					}
+				}
+			}
+
+			if(MyData::npcactivitysync) {
+				if(npcactive->type == nx_json_type::NX_JSON_OBJECT) {
+					Game_Event* character = Game_Map::GetEvent(nx_json_get(npcactive, "id")->num.u_value);
+					if(character) {
+						character->data()->active = nx_json_get(npcactive, "active")->num.u_value;
 					}
 				}
 			}
